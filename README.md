@@ -1,74 +1,165 @@
-# PHP Nonce Manager
+```markdown
+# PHP Nonce Manager 🛡️
 
-A lightweight PHP class to generate and verify one-time tokens (nonces) for secure form submissions, inspired by WordPress-style tokens.
+A secure and lightweight PHP class for generating and validating nonces (CSRF tokens) to protect your web applications against Cross-Site Request Forgery attacks.
 
-## 🔐 Features
+[![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)](https://php.net/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-- Stateless secure token with HMAC
-- Includes timestamp to prevent replay attacks
-- Token tied to session (user-specific)
-- Adjustable lifetime (default: 30 minutes)
-- Easy integration for any PHP project
+## Features
 
-## 📦 Files
+- 🚀 Simple and easy-to-use implementation
+- 🔒 Secure nonce generation using SHA-256 hashing
+- ⏳ Configurable lifetime for nonces (default: 1 hour)
+- 💡 Supports both form fields and URL tokens
+- 🛡️ Protection against timing attacks with `hash_equals()`
+- 🧹 Automatic cleanup of expired nonces
+- 🔄 Single-use tokens (optional)
 
+## Installation
+
+### Via Composer
+
+```bash
+composer require your-github-username/php-nonce-manager
 ```
-NonceManager.php       → Main class
-example-usage.php      → How to use with POST forms
-```
 
-## 🛠 How to Use
+### Manual Installation
 
-### 1. Create a nonce token:
+1. Download the `NonceManager.php` file
+2. Include it in your project:
 
 ```php
-$nonce = new NonceManager();
-$token = $nonce->create_nonce('my_action');
+require_once 'path/to/NonceManager.php';
 ```
 
-### 2. Embed in a form:
+## Basic Usage
 
-```html
-<input type="hidden" name="_nonce" value="<?= $token ?>">
-```
-
-### 3. Verify token on POST:
+### Initialize the Nonce Manager
 
 ```php
-if ($nonce->verify_nonce($_POST['_nonce'], 'my_action')) {
-    // Success
-} else {
-    // Invalid
+$nonceManager = new NonceManager();
+```
+
+### Protecting Forms
+
+1. Add a nonce field to your form:
+
+```php
+<form method="post" action="process.php">
+    <!-- Your form fields here -->
+    <?php $nonceManager->nonce_field('form_action'); ?>
+    <button type="submit">Submit</button>
+</form>
+```
+
+2. Verify the nonce when processing:
+
+```php
+if (!$nonceManager->verify_nonce($_POST['_nonce'], 'form_action')) {
+    die('Invalid request: CSRF token validation failed');
 }
 ```
 
-## ⚙️ Configuration
+### Protecting URLs
 
-Edit the following inside `NonceManager.php`:
+1. Generate a protected URL:
 
 ```php
-private $secret_key = 'change_this_secret';    // Your own app secret
-private $nonce_lifetime = 1800;                // Lifetime in seconds
+$protectedUrl = $nonceManager->nonce_url('delete.php?id=123', 'delete_action');
+echo '<a href="'.$protectedUrl.'">Delete Item</a>';
 ```
 
-## 📁 Example Output
+2. Verify the nonce when handling the request:
 
-The nonce is a base64-encoded JSON string containing:
-
-```json
-{
-  "nonce": "a1b2c3...",
-  "time": 1718643901,
-  "action": "my_action"
+```php
+if (!$nonceManager->verify_nonce($_GET['_nonce'], 'delete_action')) {
+    die('Invalid request: CSRF token validation failed');
 }
 ```
 
-## ✅ Security Notes
+## Advanced Usage
 
-- Ensure session is started
-- Keep `secret_key` private and unique per app
-- Avoid storing nonces in DB — this approach is stateless
+### Custom Nonce Field Name
 
----
+```php
+// In form:
+$nonceManager->nonce_field('update_profile', 'custom_nonce_name');
 
-MIT License. Developed with ❤️ for secure PHP development.
+// When verifying:
+$nonceManager->verify_nonce($_POST['custom_nonce_name'], 'update_profile');
+```
+
+### Custom Nonce Lifetime
+
+Extend the class to modify the lifetime:
+
+```php
+class CustomNonceManager extends NonceManager {
+    protected $nonce_lifetime = 1800; // 30 minutes
+}
+```
+
+### Manual Nonce Creation/Verification
+
+```php
+// Create a nonce without output
+$nonce = $nonceManager->create_nonce('api_request');
+
+// Verify manually
+if ($nonceManager->verify_nonce($received_nonce, 'api_request')) {
+    // Valid request
+}
+```
+
+## Security Best Practices
+
+1. Always verify nonces before processing sensitive actions
+2. Use different action names for different forms/actions
+3. Combine with other security measures like input validation
+4. Use HTTPS to prevent token interception
+5. Consider making nonces single-use for critical actions
+
+## Requirements
+
+- PHP 7.4 or higher
+- Sessions must be enabled
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you find this project useful, please consider ⭐ starring it on GitHub!
+```
+
+This README includes:
+
+1. Clear title and badges
+2. Feature highlights
+3. Installation instructions
+4. Basic and advanced usage examples
+5. Security best practices
+6. Requirements
+7. Contribution guidelines
+8. License information
+9. Support request
+
+You can customize it further by:
+- Adding screenshots if applicable
+- Including a changelog section
+- Adding a "Tests" section if you have tests
+- Adding a "Credits" section if needed
+
+Would you like me to add or modify any sections?
