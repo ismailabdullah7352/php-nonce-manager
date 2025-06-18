@@ -1,4 +1,4 @@
-```markdown
+
 # PHP Nonce Manager 🛡️
 
 A secure and lightweight PHP class for generating and validating nonces (CSRF tokens) to protect your web applications against Cross-Site Request Forgery attacks.
