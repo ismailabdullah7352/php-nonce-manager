@@ -21,7 +21,7 @@ A secure and lightweight PHP class for generating and validating nonces (CSRF to
 ### Via Composer
 
 ```bash
-composer require your-github-username/php-nonce-manager
+composer require ismailalbriki/php-nonce-manager
 ```
 
 ### Manual Installation
